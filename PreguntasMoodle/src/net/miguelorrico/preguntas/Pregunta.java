@@ -5,40 +5,104 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-public abstract class Pregunta extends Item{
-    protected final String titulo;
-    protected final String enunciado;
-    protected final String feedbackGeneral;
-    protected final double notaPorDefecto;
-    protected final double penalizacion;
-    protected final int oculta;
+public abstract class Pregunta extends Item {
+
+    private static final int ANTES_ELIPSIS = 50;
+
+    protected  String titulo;
+    protected  String enunciado;
+    protected  String feedbackGeneral;
+    protected  double notaPorDefecto;
+    protected  double penalizacion;
+    protected  int oculta;
     protected Categoria categoria;
 
-    public Element getElementXML(Document doc){
-        Element salida=doc.createElement("question");
+    public Pregunta(String titulo, String enunciado, String feedbackGeneral, double notaPorDefecto, double penalizacion, int oculta) {
+        this.titulo = titulo;
+        this.enunciado = enunciado;
+        this.feedbackGeneral = feedbackGeneral;
+        this.notaPorDefecto = notaPorDefecto;
+        this.penalizacion = penalizacion;
+        this.oculta = oculta;
+    }
+
+    public Pregunta() {
+        this("","","",0,0,0);
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public String getEnunciado() {
+        return enunciado;
+    }
+
+    public void setEnunciado(String enunciado) {
+        this.enunciado = enunciado;
+    }
+
+    public String getFeedbackGeneral() {
+        return feedbackGeneral;
+    }
+
+    public void setFeedbackGeneral(String feedbackGeneral) {
+        this.feedbackGeneral = feedbackGeneral;
+    }
+
+    public double getNotaPorDefecto() {
+        return notaPorDefecto;
+    }
+
+    public void setNotaPorDefecto(double notaPorDefecto) {
+        this.notaPorDefecto = notaPorDefecto;
+    }
+
+    public double getPenalizacion() {
+        return penalizacion;
+    }
+
+    public void setPenalizacion(double penalizacion) {
+        this.penalizacion = penalizacion;
+    }
+
+    public int getOculta() {
+        return oculta;
+    }
+
+    public void setOculta(int oculta) {
+        this.oculta = oculta;
+    }
+
+    public Element getElementXML(Document doc) {
+        Element salida = doc.createElement("question");
         Attr attr = doc.createAttribute("type");
         attr.setValue("multichoice");
         salida.setAttributeNode(attr);
-        salida.appendChild(addConText(doc,"name",this.titulo,false));
-        salida.appendChild(addConText(doc,"questiontext",this.enunciado,true));
-        salida.appendChild(addSinText(doc,"generalfeedback",""+this.feedbackGeneral,true));
-        salida.appendChild(addSinText(doc,"defaultgrade",""+this.notaPorDefecto,false));
-        salida.appendChild(addSinText(doc,"penalty",""+this.penalizacion,false));
-        salida.appendChild(addSinText(doc,"hidden",""+this.oculta,false));
+        salida.appendChild(addConText(doc, "name", this.titulo, false));
+        salida.appendChild(addConText(doc, "questiontext", this.enunciado, true));
+        salida.appendChild(addSinText(doc, "generalfeedback", "" + this.feedbackGeneral, true));
+        salida.appendChild(addSinText(doc, "defaultgrade", "" + this.notaPorDefecto, false));
+        salida.appendChild(addSinText(doc, "penalty", "" + this.penalizacion, false));
+        salida.appendChild(addSinText(doc, "hidden", "" + this.oculta, false));
 
         return salida;
     }
 
-    protected Element addConText(Document doc,String elemento,String valor,boolean format) {
-        Element e=doc.createElement(elemento);
-        if(format) {
+    protected Element addConText(Document doc, String elemento, String valor, boolean format) {
+        Element e = doc.createElement(elemento);
+        if (format) {
             Attr attr = doc.createAttribute("format");
             attr.setValue("html");
             e.setAttributeNode(attr);
 
         }
-        Element texto=doc.createElement("text");
-        if(format){
+        Element texto = doc.createElement("text");
+        if (format) {
             Node cdata = doc.createCDATASection(valor);
             texto.appendChild(cdata);
         } else {
@@ -47,9 +111,10 @@ public abstract class Pregunta extends Item{
         e.appendChild(texto);
         return e;
     }
-    protected Element addSinText(Document doc,String elemento,String valor,boolean format) {
-        Element e=doc.createElement(elemento);
-        if(format) {
+
+    protected Element addSinText(Document doc, String elemento, String valor, boolean format) {
+        Element e = doc.createElement(elemento);
+        if (format) {
             Attr attr = doc.createAttribute("format");
             attr.setValue("html");
             e.setAttributeNode(attr);
@@ -64,17 +129,18 @@ public abstract class Pregunta extends Item{
 
     public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
+        categoria.addPregunta(this);
     }
 
     public Pregunta(Element element) {
-        Node nodoName =element.getElementsByTagName("name").item(0);
+        Node nodoName = element.getElementsByTagName("name").item(0);
         this.titulo = getStringTagText(nodoName);
-        Node nodoQuestionText=element.getElementsByTagName("questiontext").item(0);
-        this.enunciado=getStringTagText(nodoQuestionText);
-        this.feedbackGeneral=getStringTagText(element.getElementsByTagName("generalfeedback").item(0));
-        notaPorDefecto=Double.parseDouble(element.getElementsByTagName("defaultgrade").item(0).getTextContent());
-        penalizacion=Double.parseDouble(element.getElementsByTagName("penalty").item(0).getTextContent());
-        oculta=Integer.parseInt(element.getElementsByTagName("hidden").item(0).getTextContent());
+        Node nodoQuestionText = element.getElementsByTagName("questiontext").item(0);
+        this.enunciado = getStringTagText(nodoQuestionText);
+        this.feedbackGeneral = getStringTagText(element.getElementsByTagName("generalfeedback").item(0));
+        notaPorDefecto = Double.parseDouble(element.getElementsByTagName("defaultgrade").item(0).getTextContent());
+        penalizacion = Double.parseDouble(element.getElementsByTagName("penalty").item(0).getTextContent());
+        oculta = Integer.parseInt(element.getElementsByTagName("hidden").item(0).getTextContent());
     }
 
     protected String getStringTagText(Node nodoName) {
@@ -100,11 +166,26 @@ public abstract class Pregunta extends Item{
                 '}';
     }
 
-    public String cadenaPregunta(){
-        String salida="";
-        salida+="TITULO DE LA PREGUNTA: "+this.titulo+" Categoría: "+this.categoria;
-        salida+="\nENUNCIADO: "+this.enunciado;
+    public String cadenaPregunta() {
+        String salida = "";
+        salida += "TITULO DE LA PREGUNTA: " + this.titulo + " Categoría: " + this.categoria;
+        salida += "\nENUNCIADO: " + this.enunciado;
         return salida;
+    }
 
+    public String getEnunciadoElipsis() {
+
+        int limit = ANTES_ELIPSIS - 3;
+        String sinHTML=this.enunciado.replaceAll("\\<.*?>","");
+        return (sinHTML.length() > ANTES_ELIPSIS) ? sinHTML.substring(0, limit) + "..." : sinHTML;
+
+    }
+
+    public String htmlPregunta() {
+        String salida="<h1>Vista previa de la pregunta</h1>";
+salida+="<h2>"+this.titulo+"</h2>";
+salida+=this.enunciado;
+
+        return salida;
     }
 }

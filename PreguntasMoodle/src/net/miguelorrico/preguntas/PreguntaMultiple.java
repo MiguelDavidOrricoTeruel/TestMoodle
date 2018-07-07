@@ -6,13 +6,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PreguntaMultiple extends Pregunta {
-    private boolean unicaOpcion;
-    private boolean barajarRespuestas;
-    private final String feedbackCorrecto;
-    private final String feedbackParcial;
-    private final String feedbackIncorrecto;
-    private TiposNumeracionRespuestas numeracion;
-    private List<Respuesta> respuestas;
+    private boolean unicaOpcion=true;
+    private boolean barajarRespuestas=true;
+    private String feedbackCorrecto="";
+    private String feedbackParcial="";
+    private String feedbackIncorrecto="";
+    private TiposNumeracionRespuestas numeracion=TiposNumeracionRespuestas.MINUSCULAS;
+    private List<Respuesta> respuestas=new ArrayList<>();
+
+
+    public void setUnicaOpcion(boolean unicaOpcion) {
+        this.unicaOpcion = unicaOpcion;
+    }
+
+    public void setBarajarRespuestas(boolean barajarRespuestas) {
+        this.barajarRespuestas = barajarRespuestas;
+    }
+
+    public void setFeedbackCorrecto(String feedbackCorrecto) {
+        this.feedbackCorrecto = feedbackCorrecto;
+    }
+
+    public void setFeedbackParcial(String feedbackParcial) {
+        this.feedbackParcial = feedbackParcial;
+    }
+
+    public void setFeedbackIncorrecto(String feedbackIncorrecto) {
+        this.feedbackIncorrecto = feedbackIncorrecto;
+    }
+
+    public void setNumeracion(TiposNumeracionRespuestas numeracion) {
+        this.numeracion = numeracion;
+    }
+
+    public void setRespuestas(List<Respuesta> respuestas) {
+        this.respuestas = respuestas;
+    }
+
+    public PreguntaMultiple() {
+    }
 
     @Override
     public Element getElementXML(Document doc) {
@@ -66,10 +98,10 @@ public class PreguntaMultiple extends Pregunta {
         String salida = super.cadenaPregunta();
         salida += "\n";
         salida += "Elija la opción correcta:\n";
-        int numero=1;
-        for (Respuesta r:this.respuestas){
-            salida+="\n"+this.numeracion.getNumeracion(numero++)+" "+r.cadenaRespuesta();
-        }
+            int numero=1;
+            for (Respuesta r:this.respuestas){
+                salida+="\n"+this.numeracion.getNumeracion(numero++)+" "+r.cadenaRespuesta();
+            }
         return salida;
     }
 
@@ -84,4 +116,30 @@ public class PreguntaMultiple extends Pregunta {
                 ", numeracion=" + numeracion +
                 '}';
     }
+
+    @Override
+    public String htmlPregunta() {
+        String salida=super.htmlPregunta();
+        salida+="<p>Elija la opci&oacute;n correcta:</p>";
+        salida+="<table>\n" +
+                "<tbody>";
+
+        int numero=1;
+        for (Respuesta r:this.respuestas){
+            salida+="<tr><td>"+this.numeracion.getNumeracion(numero++)+"</td>";
+            salida+="<td>";
+            if(r.getPeso()>0){
+                salida+="<div style=\"color:green\">";
+            } else {
+                salida+="<div>";
+            }
+            salida+=r.getTexto();
+            salida+="</div></td></tr>";
+        }
+        salida+="</tbody>\n" +
+                "</table>";
+        return salida;
+    }
+
+
 }

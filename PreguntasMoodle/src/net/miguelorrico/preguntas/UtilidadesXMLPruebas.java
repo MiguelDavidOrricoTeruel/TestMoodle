@@ -21,14 +21,13 @@ import java.util.List;
 
 public class UtilidadesXMLPruebas {
 
-    static List<Pregunta> listaPreguntas = new ArrayList<>();
 
 
-    public static void leeXML(InputStream inputStream){
-
+    public static List<Pregunta> leeXML(String nombreFichero){
+        List<Pregunta> listaPreguntas = new ArrayList<>();
         Categoria categoriaActual=null;
         try {
-            File archivo = new File("ejemplo2.xml");
+            File archivo = new File(nombreFichero);
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
             Document document = documentBuilder.parse(archivo);
@@ -58,9 +57,10 @@ public class UtilidadesXMLPruebas {
             System.out.println(p.cadenaPregunta());
             System.out.println(p);
         }
+        return listaPreguntas;
     }
 
-    private static void escribeXML(OutputStream o) {
+    private static void escribeXML(String nombreFichero,List<Pregunta> listaPreguntas) {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -80,7 +80,7 @@ public class UtilidadesXMLPruebas {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File("salida.xml"));
+            StreamResult result = new StreamResult(new File(nombreFichero));
             transformer.transform(source, result);
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
@@ -90,8 +90,7 @@ public class UtilidadesXMLPruebas {
     }
 
     public static void main(String[] args) {
-        UtilidadesXMLPruebas.leeXML(null);
-        UtilidadesXMLPruebas.escribeXML(null);
+        UtilidadesXMLPruebas.leeXML("ejemplo2.xml");
 
     }
 }
