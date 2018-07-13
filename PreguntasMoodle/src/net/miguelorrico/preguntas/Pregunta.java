@@ -15,7 +15,9 @@ public abstract class Pregunta extends Item {
     protected  double notaPorDefecto;
     protected  double penalizacion;
     protected  int oculta;
-    protected Categoria categoria;
+    protected  Categoria categoria;
+    protected boolean terminada=false;
+
 
     public Pregunta(String titulo, String enunciado, String feedbackGeneral, double notaPorDefecto, double penalizacion, int oculta) {
         this.titulo = titulo;
@@ -24,6 +26,14 @@ public abstract class Pregunta extends Item {
         this.notaPorDefecto = notaPorDefecto;
         this.penalizacion = penalizacion;
         this.oculta = oculta;
+    }
+
+    public boolean isTerminada() {
+        return terminada;
+    }
+
+    public void setTerminada(boolean terminada) {
+        this.terminada = terminada;
     }
 
     public Pregunta() {

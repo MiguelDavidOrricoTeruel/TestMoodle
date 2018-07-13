@@ -4,6 +4,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import net.miguelorrico.preguntas.Pregunta;
 import net.miguelorrico.preguntas.PreguntaMultiple;
+import net.miguelorrico.preguntas.UtilidadesTextoPreguntas;
 
 public class Controlador {
     private Pregunta pregunta=new PreguntaMultiple();
@@ -17,6 +18,7 @@ public class Controlador {
 
     public void setVentanaPrincipal(TextoAPregunta ventanaPrincipal) {
         this.ventanaPrincipal = ventanaPrincipal;
+        ventanaPrincipal.vistaPrevia.getEngine().loadContent(this.pregunta.htmlPregunta());
     }
 
     public TextoAPregunta getVentanaPrincipal() {
@@ -24,7 +26,7 @@ public class Controlador {
     }
 
     public void teclaPulsada(KeyEvent keyEvent) {
+        this.pregunta=UtilidadesTextoPreguntas.textoAPregunta(this.ventanaPrincipal.textoPregunta.getText());
         ventanaPrincipal.vistaPrevia.getEngine().loadContent(this.pregunta.htmlPregunta());
-
     }
 }

@@ -20,7 +20,7 @@
                <children>
                   <Button fx:id="abrirFichero" mnemonicParsing="false" onAction="#abrirFicheroHandle" text="Abrir Archivo" />
                   <Button fx:id="nuevoFichero" mnemonicParsing="false" onAction="#nuevoFicheroHandle" text="Nuevo Archivo" />
-                  <Button mnemonicParsing="false" text="Guardar Archivo" />
+                  <Button mnemonicParsing="false" onAction="#guardarArchivoHandle" text="Guardar Archivo" />
                </children>
             </FlowPane>
          </top>
@@ -55,7 +55,7 @@
               </rowConstraints>
                <children>
                   <WebView fx:id="webViewPregunta" prefHeight="200.0" prefWidth="200.0" />
-                  <TextArea fx:id="textoPregunta" onKeyPressed="#teclaPulsada" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1" />
+                  <TextArea fx:id="textoPregunta" onKeyReleased="#teclaPulsada" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1" />
                </children>
             </GridPane>
          </center>

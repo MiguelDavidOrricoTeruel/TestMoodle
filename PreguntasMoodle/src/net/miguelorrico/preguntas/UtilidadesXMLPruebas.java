@@ -60,7 +60,7 @@ public class UtilidadesXMLPruebas {
         return listaPreguntas;
     }
 
-    private static void escribeXML(String nombreFichero,List<Pregunta> listaPreguntas) {
+    public static void escribeXML(String nombreFichero,List<Pregunta> listaPreguntas) {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();

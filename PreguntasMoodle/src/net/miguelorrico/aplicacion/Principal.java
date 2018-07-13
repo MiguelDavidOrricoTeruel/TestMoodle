@@ -48,5 +48,9 @@ public class Principal {
     public void teclaPulsada(KeyEvent keyEvent) {
         controlador.teclaPulsada(keyEvent);
     }
+
+    public void guardarArchivoHandle(ActionEvent actionEvent) {
+        controlador.guardarArchivo();
+    }
 }
 

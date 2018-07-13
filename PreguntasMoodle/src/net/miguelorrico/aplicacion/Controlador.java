@@ -1,5 +1,6 @@
 package net.miguelorrico.aplicacion;
 
+import javafx.scene.control.Alert;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -7,10 +8,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import net.miguelorrico.preguntas.Categoria;
-import net.miguelorrico.preguntas.Pregunta;
-import net.miguelorrico.preguntas.PreguntaMultiple;
-import net.miguelorrico.preguntas.UtilidadesXMLPruebas;
+import net.miguelorrico.preguntas.*;
 
 import java.io.File;
 import java.util.*;
@@ -111,24 +109,20 @@ public class Controlador {
     }
 
     public void teclaPulsada(KeyEvent keyEvent) {
-        if(preguntaActual==null){
-            preguntaActual=new PreguntaMultiple();
-            preguntaActual.setCategoria(categoriaActual);
-        }else {
-            if (keyEvent.getCode() == KeyCode.ENTER) {
-                if(estadoPregunta==0) {
-                    preguntaActual.setTitulo(ventanaPrincipal.getTextoPregunta().getText());
-                    ventanaPrincipal.getWebViewPregunta().getEngine().loadContent(preguntaActual.htmlPregunta());
-                    listaPreguntas.listaPreguntas.add(preguntaActual);
-                    this.actualizaArbolPreguntas(listaPreguntas);
-                    estadoPregunta++;
-                } else if(estadoPregunta==1){
-                    preguntaActual.setEnunciado(ventanaPrincipal.getTextoPregunta().getText());
-                    ventanaPrincipal.getWebViewPregunta().getEngine().loadContent(preguntaActual.htmlPregunta());
-                    this.actualizaArbolPreguntas(listaPreguntas);
-                    estadoPregunta++;
-                }
-            }
+        preguntaActual=UtilidadesTextoPreguntas.textoAPregunta(this.ventanaPrincipal.getTextoPregunta().getText());
+        if(preguntaActual.isTerminada()){
+            preguntaActual.setCategoria(this.categoriaActual);
+            listaPreguntas.listaPreguntas.add(preguntaActual);
+            this.ventanaPrincipal.getTextoPregunta().setText("");
+            preguntaActual=UtilidadesTextoPreguntas.textoAPregunta("");
+            actualizaArbolPreguntas(listaPreguntas);
+            ventanaPrincipal.etiquetaNumeroPreguntas.setText("Número de preguntas: " + listaPreguntas.size());
         }
+        ventanaPrincipal.getWebViewPregunta().getEngine().loadContent(preguntaActual.htmlPregunta());
+    }
+
+    public void guardarArchivo() {
+        UtilidadesXMLPruebas.escribeXML(ficheroActual.getName(),this.listaPreguntas.listaPreguntas);
+        new Alert(Alert.AlertType.INFORMATION, "Archivo Guardado").showAndWait();
     }
 }

@@ -14,6 +14,9 @@ public class PreguntaMultiple extends Pregunta {
     private TiposNumeracionRespuestas numeracion=TiposNumeracionRespuestas.MINUSCULAS;
     private List<Respuesta> respuestas=new ArrayList<>();
 
+    public List<Respuesta> getRespuestas() {
+        return respuestas;
+    }
 
     public void setUnicaOpcion(boolean unicaOpcion) {
         this.unicaOpcion = unicaOpcion;
