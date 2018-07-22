@@ -1,7 +1,13 @@
 package net.miguelorrico.preguntas;
 
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static net.miguelorrico.preguntas.UtilidadesXMLPruebas.addConText;
 
 public class Categoria extends Item implements Comparable{
     private final String nombre;
@@ -40,4 +46,14 @@ public class Categoria extends Item implements Comparable{
         int ultimo=this.nombre.lastIndexOf('/');
         return this.nombre.substring(ultimo+1);
     }
+
+    public Element getElementXML(Document doc) {
+        Element salida = doc.createElement("question");
+        Attr attr = doc.createAttribute("type");
+        attr.setValue("category");
+        salida.setAttributeNode(attr);
+        salida.appendChild(addConText(doc, "category", "$course$/" + this.nombre, false));
+        return salida;
+    }
+
 }

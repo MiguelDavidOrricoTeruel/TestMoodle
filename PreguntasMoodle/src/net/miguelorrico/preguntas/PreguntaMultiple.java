@@ -5,6 +5,9 @@ import org.w3c.dom.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.miguelorrico.preguntas.UtilidadesXMLPruebas.addConText;
+import static net.miguelorrico.preguntas.UtilidadesXMLPruebas.addSinText;
+
 public class PreguntaMultiple extends Pregunta {
     private boolean unicaOpcion=true;
     private boolean barajarRespuestas=true;

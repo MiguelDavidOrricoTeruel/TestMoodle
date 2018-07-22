@@ -5,6 +5,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import static net.miguelorrico.preguntas.UtilidadesXMLPruebas.addConText;
+import static net.miguelorrico.preguntas.UtilidadesXMLPruebas.addSinText;
+
 public abstract class Pregunta extends Item {
 
     private static final int ANTES_ELIPSIS = 50;
@@ -95,7 +98,7 @@ public abstract class Pregunta extends Item {
         salida.setAttributeNode(attr);
         salida.appendChild(addConText(doc, "name", this.titulo, false));
         salida.appendChild(addConText(doc, "questiontext", this.enunciado, true));
-        salida.appendChild(addSinText(doc, "generalfeedback", "" + this.feedbackGeneral, true));
+        salida.appendChild(addConText(doc, "generalfeedback", "" + this.feedbackGeneral, true));
         salida.appendChild(addSinText(doc, "defaultgrade", "" + this.notaPorDefecto, false));
         salida.appendChild(addSinText(doc, "penalty", "" + this.penalizacion, false));
         salida.appendChild(addSinText(doc, "hidden", "" + this.oculta, false));
@@ -103,35 +106,7 @@ public abstract class Pregunta extends Item {
         return salida;
     }
 
-    protected Element addConText(Document doc, String elemento, String valor, boolean format) {
-        Element e = doc.createElement(elemento);
-        if (format) {
-            Attr attr = doc.createAttribute("format");
-            attr.setValue("html");
-            e.setAttributeNode(attr);
 
-        }
-        Element texto = doc.createElement("text");
-        if (format) {
-            Node cdata = doc.createCDATASection(valor);
-            texto.appendChild(cdata);
-        } else {
-            texto.setTextContent(valor);
-        }
-        e.appendChild(texto);
-        return e;
-    }
-
-    protected Element addSinText(Document doc, String elemento, String valor, boolean format) {
-        Element e = doc.createElement(elemento);
-        if (format) {
-            Attr attr = doc.createAttribute("format");
-            attr.setValue("html");
-            e.setAttributeNode(attr);
-        }
-        e.setTextContent(valor);
-        return e;
-    }
 
     public Categoria getCategoria() {
         return categoria;
@@ -158,7 +133,8 @@ public abstract class Pregunta extends Item {
             Element elementoName = (Element) nodoName;
 
             Node texto = elementoName.getElementsByTagName("text").item(0);
-            return texto.getTextContent();
+//            System.out.println("Nodo texto"+texto);
+            return texto.getTextContent() == null ? "" : texto.getTextContent();
         }
         return null;
     }
@@ -198,4 +174,11 @@ salida+=this.enunciado;
 
         return salida;
     }
+
+    public String preguntaATexto() {
+        String salida = "";
+        salida += this.getTitulo().replace("<br>", "\n\n");
+        return salida;
+    }
+
 }

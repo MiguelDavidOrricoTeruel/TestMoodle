@@ -14,10 +14,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class UtilidadesXMLPruebas {
 
@@ -60,6 +60,14 @@ public class UtilidadesXMLPruebas {
         return listaPreguntas;
     }
 
+    public static Set<Categoria> obtenCategorias(List<Pregunta> listaPreguntas) {
+        Set<Categoria> categorias = new HashSet<>();
+        for (Pregunta p : listaPreguntas) {
+            categorias.add(p.getCategoria());
+        }
+        return categorias;
+    }
+
     public static void escribeXML(String nombreFichero,List<Pregunta> listaPreguntas) {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -69,10 +77,17 @@ public class UtilidadesXMLPruebas {
             Element rootElement = doc.createElement("quiz");
             doc.appendChild(rootElement);
             doc.getDocumentElement().normalize();
-            //Primer elemento
-            for (int i = 0; i < listaPreguntas.size(); i++) {
-                rootElement.appendChild(listaPreguntas.get(i).getElementXML(doc));
+
+            for (Categoria c : obtenCategorias(listaPreguntas)) {
+                rootElement.appendChild(c.getElementXML(doc));
+                for (int i = 0; i < listaPreguntas.size(); i++) {
+                    rootElement.appendChild(listaPreguntas.get(i).getElementXML(doc));
+                }
             }
+            //Primer elemento
+//            for (int i = 0; i < listaPreguntas.size(); i++) {
+//                rootElement.appendChild(listaPreguntas.get(i).getElementXML(doc));
+//            }
 
             //Se escribe el contenido del XML en un archivo
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -90,7 +105,37 @@ public class UtilidadesXMLPruebas {
     }
 
     public static void main(String[] args) {
-        UtilidadesXMLPruebas.leeXML("ejemplo2.xml");
+        UtilidadesXMLPruebas.leeXML("nuevo.xml");
 
+    }
+
+    protected static Element addConText(Document doc, String elemento, String valor, boolean format) {
+        Element e = doc.createElement(elemento);
+        if (format) {
+            Attr attr = doc.createAttribute("format");
+            attr.setValue("html");
+            e.setAttributeNode(attr);
+
+        }
+        Element texto = doc.createElement("text");
+        if (format) {
+            Node cdata = doc.createCDATASection(valor);
+            texto.appendChild(cdata);
+        } else {
+            texto.setTextContent(valor);
+        }
+        e.appendChild(texto);
+        return e;
+    }
+
+    protected static Element addSinText(Document doc, String elemento, String valor, boolean format) {
+        Element e = doc.createElement(elemento);
+        if (format) {
+            Attr attr = doc.createAttribute("format");
+            attr.setValue("html");
+            e.setAttributeNode(attr);
+        }
+        e.setTextContent(valor);
+        return e;
     }
 }

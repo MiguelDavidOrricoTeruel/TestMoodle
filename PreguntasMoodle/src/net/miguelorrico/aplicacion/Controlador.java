@@ -1,14 +1,18 @@
 package net.miguelorrico.aplicacion;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import net.miguelorrico.preguntas.*;
+import net.miguelorrico.preguntas.Categoria;
+import net.miguelorrico.preguntas.Pregunta;
+import net.miguelorrico.preguntas.PreguntaFactory;
+import net.miguelorrico.preguntas.UtilidadesXMLPruebas;
 
 import java.io.File;
 import java.util.*;
@@ -21,7 +25,7 @@ public class Controlador {
     boolean modoCreacion = true;
     Categoria categoriaActual;
     Pregunta preguntaActual;
-    int estadoPregunta=0;
+    int estadoPregunta = 0;
 
 
     public Controlador(Stage primaryStage) {
@@ -30,6 +34,19 @@ public class Controlador {
 
     public void setVentanaPrincipal(Principal ventanaPrincipal) {
         this.ventanaPrincipal = ventanaPrincipal;
+        this.ventanaPrincipal.getArbolPreguntas().getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<String>>() {
+            @Override
+            public void changed(ObservableValue<? extends TreeItem<String>> observable, TreeItem<String> oldValue, TreeItem<String> newValue) {
+                TreeItem<String> selectedItem = (TreeItem<String>) newValue;
+                System.out.println("Selected Text : " + selectedItem.getValue());
+                for (Pregunta p : listaPreguntas.listaPreguntas) {
+                    if (p.getEnunciado().equals(selectedItem.getValue())) {
+                        actualizaVistaCambioPregunta(p);
+                        break;
+                    }
+                }
+            }
+        });
     }
 
     public void abrirFichero() {
@@ -41,31 +58,42 @@ public class Controlador {
             this.ficheroActual = ficheroElegido;
             ventanaPrincipal.estatus.setText("Fichero Actual: " + ficheroActual.getName());
             listaPreguntas = new ListaPreguntas();
-            listaPreguntas.leerFichero(ficheroActual.getName());
+            listaPreguntas.leerFichero(ficheroActual.getAbsolutePath());
             ventanaPrincipal.etiquetaNumeroPreguntas.setText("Número de preguntas: " + listaPreguntas.size());
-            ventanaPrincipal.getWebViewPregunta().getEngine().loadContent(listaPreguntas.listaPreguntas.get(0).htmlPregunta());
-            actualizaArbolPreguntas(listaPreguntas);
+            actualizaVistaCambioPregunta(listaPreguntas.listaPreguntas.get(0));
+            actualizaArbolPreguntas(listaPreguntas, 0);
             ventanaPrincipal.estatusCreacion.setText("Modo Revisión");
             modoCreacion = false;
         }
 
     }
 
-    private void actualizaArbolPreguntas(ListaPreguntas listaPreguntas) {
-        TreeView<String> arbolPreguntas=ventanaPrincipal.getArbolPreguntas();
+    private void actualizaVistaCambioPregunta(Pregunta p) {
+        ventanaPrincipal.getTextoPregunta().setText(p.preguntaATexto());
+        ventanaPrincipal.getWebViewPregunta().getEngine().loadContent(p.htmlPregunta());
+    }
+
+    private void actualizaArbolPreguntas(ListaPreguntas listaPreguntas, int preguntaSeleccionada) {
+        TreeView<String> arbolPreguntas = ventanaPrincipal.getArbolPreguntas();
         TreeItem<String> raiz = new TreeItem<>("Categorías");
+        List<TreeItem<String>> preguntasArbol = new ArrayList<>();
         arbolPreguntas.setRoot(raiz);
         Set<Categoria> listaCategorias = new TreeSet<>();
         for (Pregunta p : listaPreguntas.listaPreguntas) {
             if (listaCategorias.add(p.getCategoria())) {
-                TreeItem<String> categoria = new TreeItem<String>(p.getCategoria().getFinalNombre());
+                TreeItem<String> categoria = new TreeItem<>(p.getCategoria().getFinalNombre());
                 categoria.setExpanded(true);
                 raiz.getChildren().add(categoria);
                 for (Pregunta pregunta : p.getCategoria().getPreguntas()) {
-                    categoria.getChildren().add(new TreeItem<>(pregunta.getEnunciadoElipsis()));
+                    TreeItem<String> preguntaAnyadida = new TreeItem<>(pregunta.getEnunciadoElipsis());
+                    preguntaAnyadida.setExpanded(true);
+                    categoria.getChildren().add(preguntaAnyadida);
+                    preguntasArbol.add(preguntaAnyadida);
                 }
             }
         }
+        System.out.println("Seleccionadda en el árbol:" + preguntaSeleccionada);
+        arbolPreguntas.getSelectionModel().select(preguntasArbol.get(preguntaSeleccionada));
         raiz.setExpanded(true);
 
     }
@@ -91,10 +119,10 @@ public class Controlador {
 
 // Traditional way to get the response value.
         Optional<String> result = dialog.showAndWait();
-        if (result.isPresent()){
-            categoriaActual=new Categoria(result.get());
+        if (result.isPresent()) {
+            categoriaActual = new Categoria(result.get());
             TreeItem<String> raiz = new TreeItem<>("Categorías");
-            TreeView<String> arbolPreguntas=ventanaPrincipal.getArbolPreguntas();
+            TreeView<String> arbolPreguntas = ventanaPrincipal.getArbolPreguntas();
             arbolPreguntas.setRoot(raiz);
             TreeItem<String> categoria = new TreeItem<String>(result.get());
 
@@ -109,20 +137,20 @@ public class Controlador {
     }
 
     public void teclaPulsada(KeyEvent keyEvent) {
-        preguntaActual=UtilidadesTextoPreguntas.textoAPregunta(this.ventanaPrincipal.getTextoPregunta().getText());
-        if(preguntaActual.isTerminada()){
+        preguntaActual = PreguntaFactory.getPregunta(this.ventanaPrincipal.getTextoPregunta().getText());
+        if (preguntaActual.isTerminada()) {
             preguntaActual.setCategoria(this.categoriaActual);
             listaPreguntas.listaPreguntas.add(preguntaActual);
             this.ventanaPrincipal.getTextoPregunta().setText("");
-            preguntaActual=UtilidadesTextoPreguntas.textoAPregunta("");
-            actualizaArbolPreguntas(listaPreguntas);
+            preguntaActual = PreguntaFactory.getPregunta("");
+            actualizaArbolPreguntas(listaPreguntas, 0);
             ventanaPrincipal.etiquetaNumeroPreguntas.setText("Número de preguntas: " + listaPreguntas.size());
         }
         ventanaPrincipal.getWebViewPregunta().getEngine().loadContent(preguntaActual.htmlPregunta());
     }
 
     public void guardarArchivo() {
-        UtilidadesXMLPruebas.escribeXML(ficheroActual.getName(),this.listaPreguntas.listaPreguntas);
+        UtilidadesXMLPruebas.escribeXML(ficheroActual.getAbsolutePath(), this.listaPreguntas.listaPreguntas);
         new Alert(Alert.AlertType.INFORMATION, "Archivo Guardado").showAndWait();
     }
 }
